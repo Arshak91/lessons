@@ -5,3 +5,32 @@
       apt: pkg=nginx state=installed update_cache=true
       notify:
         - start nginx
+    - name: copy the index.html
+      copy:
+        src: ../resources/index.html
+        dest: /var/www/rate/
+        remote_src: true
+    - name: change ownership and file permissions for index.html
+      file:
+        dest: /var/www/rate/
+        owner: root
+        group: root
+        mode: u=rwX,g=rX,o=rX
+        recurse: yes
+    - name: copy the nginx config file and restart nginx
+      copy:
+        src: ../resources/rate.cfg
+        dest: /etc/nginx/sites-available/
+        remote_src: true
+    - name: create symlink
+      file:
+        src: /etc/nginx/sites-available/rate.cfg
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+    - name: copy sh file
+      copy:
+        src: ../
